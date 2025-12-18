@@ -1,0 +1,67 @@
+/* client/src/styles.scss */
+body {
+  background-color: #f3f3f3;
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 850px;
+}
+
+header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* The "Piece of Paper" look */
+.editor-container {
+  background: white;
+  border: 1px solid #ddd;
+  min-height: 100vh; /* A4 height feel */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 40px; /* Margins of the paper */
+}
+
+/* Tiptap removes the outline */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p {
+  margin-top: 0;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Toolbar Buttons */
+.toolbar {
+  background: #f8f9fa;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  margin: -40px -40px 20px -40px; /* Stretch to edges */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button.is-active {
+  background: black;
+  color: white;
+}

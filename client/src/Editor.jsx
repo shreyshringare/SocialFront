@@ -1,4 +1,4 @@
-// client/src/Editor.jsx
+\// client/src/Editor.jsx
 import "./styles.scss";
 import { useEffect, useState, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -6,7 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
+import { HocuspocusProvider } from "@hocuspocus/provider";
 
 const colors = [
   "#958DF1",
@@ -17,22 +17,28 @@ const colors = [
   "#94FADB",
   "#B9F18D",
 ];
-const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+
+const getRandomColor = () =>
+  colors[Math.floor(Math.random() * colors.length)];
 
 const Editor = ({ documentId }) => {
-  // We use 'provider' to track the connection
+  // Hard safety guard
+  if (!documentId) {
+    return <div className="editor-container">Missing documentId</div>;
+  }
+
   const [provider, setProvider] = useState(null);
 
+  // 1️⃣ Create Yjs document + Hocuspocus provider
   useEffect(() => {
-    // 1. Setup the Connection
     const ydoc = new Y.Doc();
 
-    // Connect to Developer A's server (or your local test server)
-    const wsProvider = new WebsocketProvider(
-      "ws://localhost:1234",
-      documentId,
-      ydoc
-    );
+    const wsProvider = new HocuspocusProvider({
+      url: "ws://localhost:1234",
+      name: documentId,
+      document: ydoc,
+      connect: true,
+    });
 
     setProvider(wsProvider);
 
@@ -42,27 +48,46 @@ const Editor = ({ documentId }) => {
     };
   }, [documentId]);
 
-  // 2. Configure Editor (Only when provider is ready)
+  // 2️⃣ Build extensions (StarterKit ALWAYS present)
+  const extensions = useMemo(() => {
+    const baseExtensions = [
+      StarterKit.configure({ history: false }),
+    ];
+
+    if (!provider) {
+      return baseExtensions;
+    }
+
+    if (!provider.wsconnected) {
+      return baseExtensions;
+    }
+
+    return [
+      ...baseExtensions,
+
+      Collaboration.configure({
+        document: provider.doc,
+      }),
+
+      CollaborationCursor.configure({
+        provider,
+        user: {
+          name: "Dev B",
+          color: getRandomColor(),
+        },
+      }),
+    ];
+  }, [provider, provider?.wsconnected]);
+
+  // 3️⃣ Create TipTap editor
   const editor = useEditor(
     {
-      extensions: [
-        StarterKit.configure({ history: false }), // Disable local history
-
-        // The Sync Engine
-        Collaboration.configure({
-          document: provider ? provider.doc : new Y.Doc(),
-        }),
-
-        // The Cursors
-        CollaborationCursor.configure({
-          provider: provider,
-          user: { name: "Dev B", color: getRandomColor() },
-        }),
-      ],
+      extensions,
     },
-    [provider]
-  ); // Re-load when provider changes
+    [extensions]
+  );
 
+  // 4️⃣ Loading state
   if (!editor || !provider) {
     return <div className="editor-container">Connecting...</div>;
   }
@@ -77,6 +102,7 @@ const Editor = ({ documentId }) => {
         >
           Bold
         </button>
+
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={editor.isActive("italic") ? "is-active" : ""}
@@ -84,7 +110,7 @@ const Editor = ({ documentId }) => {
           Italic
         </button>
 
-        {/* Connection Status Light */}
+        {/* Connection status */}
         <span
           style={{
             marginLeft: "auto",

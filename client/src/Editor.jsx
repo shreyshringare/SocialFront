@@ -1,4 +1,4 @@
-\// client/src/Editor.jsx
+// client/src/Editor.jsx
 import "./styles.scss";
 import { useEffect, useState, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";

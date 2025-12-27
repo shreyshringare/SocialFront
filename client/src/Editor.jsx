@@ -1,4 +1,5 @@
 // client/src/Editor.jsx
+
 import "./styles.scss";
 import { useEffect, useState, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -18,8 +19,7 @@ const colors = [
   "#B9F18D",
 ];
 
-const getRandomColor = () =>
-  colors[Math.floor(Math.random() * colors.length)];
+const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
 const Editor = ({ documentId }) => {
   // Hard safety guard
@@ -34,7 +34,7 @@ const Editor = ({ documentId }) => {
     const ydoc = new Y.Doc();
 
     const wsProvider = new HocuspocusProvider({
-      url: "ws://localhost:1234",
+      url: "ws://127.0.0.1:1234",
       name: documentId,
       document: ydoc,
       connect: true,
@@ -50,9 +50,7 @@ const Editor = ({ documentId }) => {
 
   // 2️⃣ Build extensions (StarterKit ALWAYS present)
   const extensions = useMemo(() => {
-    const baseExtensions = [
-      StarterKit.configure({ history: false }),
-    ];
+    const baseExtensions = [StarterKit.configure({ history: false })];
 
     if (!provider) {
       return baseExtensions;
@@ -94,8 +92,9 @@ const Editor = ({ documentId }) => {
 
   return (
     <div className="editor-container">
-      {/* Toolbar */}
+      {/* --- DAY 5 TOOLBAR (Updated with more buttons) --- */}
       <div className="toolbar">
+        {/* Basic Text Formatting */}
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={editor.isActive("bold") ? "is-active" : ""}
@@ -108,6 +107,73 @@ const Editor = ({ documentId }) => {
           className={editor.isActive("italic") ? "is-active" : ""}
         >
           Italic
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          className={editor.isActive("strike") ? "is-active" : ""}
+        >
+          Strike
+        </button>
+
+        {/* Headings */}
+        <button
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
+          className={
+            editor.isActive("heading", { level: 1 }) ? "is-active" : ""
+          }
+        >
+          H1
+        </button>
+
+        <button
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+          className={
+            editor.isActive("heading", { level: 2 }) ? "is-active" : ""
+          }
+        >
+          H2
+        </button>
+
+        {/* Lists */}
+        <button
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={editor.isActive("bulletList") ? "is-active" : ""}
+        >
+          Bullet List
+        </button>
+
+        {/* Code Block & Horizontal Rule */}
+        <button
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          className={editor.isActive("codeBlock") ? "is-active" : ""}
+        >
+          Code Block
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        >
+          Divider
+        </button>
+
+        {/* Undo/Redo */}
+        <button
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+        >
+          Undo
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
+        >
+          Redo
         </button>
 
         {/* Connection status */}

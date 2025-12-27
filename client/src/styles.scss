@@ -31,7 +31,28 @@ header {
 
 /* Tiptap removes the outline */
 .ProseMirror {
-  outline: none;
+  h1 {
+    font-size: 2rem;
+    margin-top: 0.5rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+  }
+  code {
+    background: #f0f0f0;
+    padding: 0.2rem;
+    border-radius: 4px;
+  }
+  pre {
+    background: #333;
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  ul {
+    padding-left: 1.5rem;
+  }
 }
 
 .ProseMirror p {
@@ -64,4 +85,42 @@ button {
 button.is-active {
   background: black;
   color: white;
+}
+
+/* Add this to the bottom of client/src/styles.scss */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap; // Allows buttons to wrap to the next line on small screens
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  background: #f9f9f9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  button {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: #eee;
+    }
+
+    &.is-active {
+      background: #333;
+      color: white;
+      border-color: #333;
+    }
+
+    &:disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+  }
 }

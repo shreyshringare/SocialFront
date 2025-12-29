@@ -11,8 +11,8 @@
     "nodemon": "nodemon server.js"
   },
   "dependencies": {
-    "@hocuspocus/server": "^3.4.3",
     "@hocuspocus/provider": "^2.11.0",
+    "@hocuspocus/server": "^3.4.3",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "mongoose": "^9.0.2",

@@ -8,6 +8,8 @@ import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import * as Y from "yjs";
 import { HocuspocusProvider } from "@hocuspocus/provider";
+import Image from "@tiptap/extension-image";
+import ImageResize from "tiptap-extension-resize-image";
 
 const colors = [
   "#958DF1",
@@ -50,7 +52,10 @@ const Editor = ({ documentId }) => {
 
   // 2️⃣ Build extensions (StarterKit ALWAYS present)
   const extensions = useMemo(() => {
-    const baseExtensions = [StarterKit.configure({ history: false })];
+    const baseExtensions = [
+      StarterKit.configure({ history: false }),
+      ImageResize,
+    ];
 
     if (!provider) {
       return baseExtensions;
@@ -89,6 +94,44 @@ const Editor = ({ documentId }) => {
   if (!editor || !provider) {
     return <div className="editor-container">Connecting...</div>;
   }
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    /*
+
+    const localUrl = URL.createObjectURL(file);
+    editor.chain().focus().setImage({ src: localUrl }).run();
+    
+    */
+
+    // 1. Create a "FormData" package to send the file
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      // 2. Send the file to Developer A's API
+      // Note: Use http://localhost:3000/upload (or whatever port Dev A uses)
+      const response = await fetch("http://localhost:3000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // 3. Insert the image into Tiptap using the URL returned by the server
+        // The server usually returns { url: "http://..." }
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } else {
+        console.error("Upload failed");
+        alert("Failed to upload image to server.");
+      }
+    } catch (error) {
+      console.error("Error uploading:", error);
+      alert("Server not responding. Is the Backend running?");
+    }
+  };
 
   return (
     <div className="editor-container">
@@ -176,6 +219,25 @@ const Editor = ({ documentId }) => {
           Redo
         </button>
 
+        {/* Option A: Insert from Web */}
+        <button
+          onClick={() => {
+            const url = window.prompt("Paste image URL from web:");
+            if (url) editor.chain().focus().setImage({ src: url }).run();
+          }}
+          className="toolbar-button"
+        >
+          Web Image
+        </button>
+
+        {/* Option B: Upload from System */}
+        <button
+          onClick={() => document.getElementById("fileInput").click()}
+          className="toolbar-button"
+        >
+          Upload Image
+        </button>
+
         {/* Connection status */}
         <span
           style={{
@@ -189,6 +251,13 @@ const Editor = ({ documentId }) => {
       </div>
 
       <EditorContent editor={editor} />
+      <input
+        type="file"
+        id="fileInput"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleFileUpload}
+      />
     </div>
   );
 };

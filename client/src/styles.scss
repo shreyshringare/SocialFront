@@ -53,6 +53,24 @@ header {
   ul {
     padding-left: 1.5rem;
   }
+  img {
+    display: inline-block;
+    float: none;
+    cursor: default;
+    transition: box-shadow 0.3s;
+
+    &.ProseMirror-selectednode {
+      outline: 3px solid #70cff8; /* Highlight image when clicked */
+    }
+  }
+
+  /* Styling the resize handles provided by the extension */
+  .resizer {
+    border: 1px solid #fff;
+    background: #70cff8;
+    width: 10px;
+    height: 10px;
+  }
 }
 
 .ProseMirror p {

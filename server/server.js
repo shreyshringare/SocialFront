@@ -57,8 +57,9 @@ const startServer = async () => {
     });
 
     // Start Hocuspocus (Collaboration server)
-    hocuspocusServer.listen();
-    console.log("🟢 Hocuspocus WebSocket running on ws://localhost:1234");
+    hocuspocusServer.listen(1234).then(() => {
+      console.log("Hocuspocus is officially listening on port 1234");
+    });
   } catch (err) {
     console.error("Server failed.", err);
     process.exit(1);

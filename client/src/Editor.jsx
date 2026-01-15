@@ -30,21 +30,31 @@ const Editor = ({ documentId }) => {
   }
 
   const [provider, setProvider] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState("offline");
 
   // 1️⃣ Create Yjs document + Hocuspocus provider
   useEffect(() => {
     const ydoc = new Y.Doc();
 
     const wsProvider = new HocuspocusProvider({
-      url: "ws://127.0.0.1:1234",
-      name: documentId,
+      url: "ws://localhost:1234",
+      name: documentId || "default-room",
       document: ydoc,
       connect: true,
+    });
+
+    // --- NEW: Status Listener Logic ---
+    // This listens for the '101' handshake you saw in the network tab
+    wsProvider.on("status", ({ status }) => {
+      console.log("WebSocket Status Update:", status);
+      // This will update your 'connectionStatus' state to 'connected'
+      setConnectionStatus(status);
     });
 
     setProvider(wsProvider);
 
     return () => {
+      wsProvider.off("status");
       wsProvider.destroy();
       ydoc.destroy();
     };
@@ -268,10 +278,14 @@ const Editor = ({ documentId }) => {
           style={{
             marginLeft: "auto",
             fontSize: "12px",
-            color: provider.wsconnected ? "green" : "red",
+            color: connectionStatus === "connected" ? "green" : "red",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
           }}
         >
-          ● {provider.wsconnected ? "Online" : "Offline"}
+          ● {connectionStatus === "connected" ? "Online" : "Offline"}
         </span>
 
         <button

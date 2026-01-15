@@ -1,4 +1,4 @@
-/* client/src/styles.scss */
+/* --- BASE STYLES --- */
 body {
   background-color: #f3f3f3;
   font-family: "Arial", sans-serif;
@@ -20,17 +20,89 @@ header {
   align-items: center;
 }
 
-/* The "Piece of Paper" look */
+/* --- THE CONTAINER (Piece of Paper Look) --- */
 .editor-container {
   background: white;
-  border: 1px solid #ddd;
-  min-height: 100vh; /* A4 height feel */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 40px; /* Margins of the paper */
+  border: 1px solid #e2e8f0;
+  min-height: 800px; /* Professional A4 feel */
+  /* Day 9: Deeper shadow for premium look */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 40px;
+  border-radius: 8px;
+  margin-bottom: 50px;
+  position: relative;
 }
 
-/* Tiptap removes the outline */
+/* --- THE TOOLBAR --- */
+.toolbar {
+  background: #f8fafc;
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  /* Day 9: Stretches to the edge of the paper margins */
+  margin: -40px -40px 30px -40px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  button {
+    padding: 6px 12px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    &.is-active {
+      background: #1e293b;
+      color: white;
+      border-color: #1e293b;
+    }
+
+    /* Day 10: Logic for faded buttons */
+    &.faded-button {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(1);
+      pointer-events: none;
+    }
+
+    /* Day 9: The purple share button */
+    &.share-button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      margin-left: auto; /* Pushes it to the right */
+      font-weight: 600;
+
+      &:hover {
+        background: #4f46e5;
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+/* --- THE EDITOR CONTENT (ProseMirror) --- */
 .ProseMirror {
+  outline: none; /* Removes default browser outline */
+
+  p {
+    margin-top: 0;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
   h1 {
     font-size: 2rem;
     margin-top: 0.5rem;
@@ -39,32 +111,41 @@ header {
     font-size: 1.5rem;
     margin-top: 0.5rem;
   }
+
   code {
     background: #f0f0f0;
     padding: 0.2rem;
     border-radius: 4px;
   }
+
   pre {
     background: #333;
     color: white;
     padding: 1rem;
     border-radius: 8px;
   }
+
   ul {
     padding-left: 1.5rem;
   }
+
+  /* Day 9: Polished Image Styling */
   img {
     display: inline-block;
-    float: none;
+    max-width: 100%; /* Keeps image inside paper */
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
     cursor: default;
-    transition: box-shadow 0.3s;
+    transition: all 0.3s;
 
     &.ProseMirror-selectednode {
-      outline: 3px solid #70cff8; /* Highlight image when clicked */
+      outline: 3px solid #70cff8;
+      box-shadow: 0 0 15px rgba(112, 207, 248, 0.5);
     }
   }
 
-  /* Styling the resize handles provided by the extension */
+  /* Day 7 Amendment: Resizer handles */
   .resizer {
     border: 1px solid #fff;
     background: #70cff8;
@@ -73,72 +154,26 @@ header {
   }
 }
 
-.ProseMirror p {
-  margin-top: 0;
-  line-height: 1.6;
-  font-size: 16px;
+/* --- DAY 8: COLLABORATION CURSORS --- */
+.collaboration-cursor__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 2px solid;
+  border-right: 2px solid;
+  word-break: normal;
+  pointer-events: none;
 }
 
-/* Toolbar Buttons */
-.toolbar {
-  background: #f8f9fa;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  margin: -40px -40px 20px -40px; /* Stretch to edges */
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  gap: 10px;
-}
-
-button {
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  background: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-button.is-active {
-  background: black;
-  color: white;
-}
-
-/* Add this to the bottom of client/src/styles.scss */
-
-.toolbar {
-  display: flex;
-  flex-wrap: wrap; // Allows buttons to wrap to the next line on small screens
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #ddd;
-  background: #f9f9f9;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  button {
-    padding: 0.4rem 0.8rem;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9rem;
-
-    &:hover {
-      background: #eee;
-    }
-
-    &.is-active {
-      background: #333;
-      color: white;
-      border-color: #333;
-    }
-
-    &:disabled {
-      color: #ccc;
-      cursor: not-allowed;
-    }
-  }
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -2px;
+  font-size: 12px;
+  font-weight: 600;
+  user-select: none;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px 4px 4px 0;
+  white-space: nowrap;
 }

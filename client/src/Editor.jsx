@@ -5,11 +5,11 @@ import { useEffect, useState, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import * as Y from "yjs";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import Image from "@tiptap/extension-image";
 import ImageResize from "tiptap-extension-resize-image";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
 const colors = [
   "#958DF1",
@@ -70,6 +70,7 @@ const Editor = ({ documentId }) => {
 
       Collaboration.configure({
         document: provider.doc,
+        field: "content",
       }),
 
       CollaborationCursor.configure({
@@ -131,6 +132,22 @@ const Editor = ({ documentId }) => {
       console.error("Error uploading:", error);
       alert("Server not responding. Is the Backend running?");
     }
+  };
+
+  const copyRoomLink = () => {
+    // 1. Get the current URL from the address bar
+    const url = window.location.href;
+
+    // 2. Copy it to the clipboard
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        // 3. Show a little message so the user knows it worked
+        alert("Room link copied to clipboard! Share it with a friend.");
+      })
+      .catch((err) => {
+        console.error("Could not copy text: ", err);
+      });
   };
 
   return (
@@ -206,15 +223,23 @@ const Editor = ({ documentId }) => {
 
         {/* Undo/Redo */}
         <button
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
+          onClick={() => {
+            console.log("Undo clicked"); // Check your console to see if this triggers
+            editor.chain().focus().undo().run();
+          }}
+          // For Day 10, let's remove the faded-button class temporarily
+          // to see if the buttons actually work when clicked.
+          className="toolbar-button"
         >
           Undo
         </button>
 
         <button
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
+          onClick={() => {
+            console.log("Redo clicked");
+            editor.chain().focus().redo().run();
+          }}
+          className="toolbar-button"
         >
           Redo
         </button>
@@ -248,6 +273,18 @@ const Editor = ({ documentId }) => {
         >
           ● {provider.wsconnected ? "Online" : "Offline"}
         </span>
+
+        <button
+          onClick={copyRoomLink}
+          className="toolbar-button share-button"
+          style={{
+            marginLeft: "10px",
+            backgroundColor: "#6366f1",
+            color: "white",
+          }}
+        >
+          Copy Link
+        </button>
       </div>
 
       <EditorContent editor={editor} />

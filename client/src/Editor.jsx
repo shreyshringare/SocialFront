@@ -61,37 +61,67 @@ const Editor = ({ documentId }) => {
   }, [documentId]);
 
   // 2️⃣ Build extensions (StarterKit ALWAYS present)
+  // const extensions = useMemo(() => {
+  //   const baseExtensions = [
+  //     StarterKit.configure({ history: false }),
+  //     ImageResize,
+  //   ];
+
+  //   if (!provider) {
+  //     return baseExtensions;
+  //   }
+
+  //   if (!provider.wsconnected) {
+  //     return baseExtensions;
+  //   }
+
+  //   return [
+  //     ...baseExtensions,
+
+  //     Collaboration.configure({
+  //       document: provider.doc,
+  //       field: "content",
+  //     }),
+
+  //     CollaborationCursor.configure({
+  //       provider: provider,
+  //       user: {
+  //         name: "Dev B",
+  //         color: getRandomColor(),
+  //       },
+  //     }),
+  //   ];
+  // }, [provider, provider?.wsconnected]);
+
   const extensions = useMemo(() => {
     const baseExtensions = [
       StarterKit.configure({ history: false }),
       ImageResize,
     ];
 
-    if (!provider) {
+    // 1. SAFETY: Check if the provider OR its document is missing.
+    // This prevents the "getXmlFragment" crash while the page loads.
+    if (!provider || !provider.doc) {
       return baseExtensions;
     }
 
-    if (!provider.wsconnected) {
-      return baseExtensions;
-    }
-
+    // 2. THE BRIDGE: Now that doc exists, we can safely add collaboration.
+    // We DO NOT check wsconnected here anymore.
     return [
       ...baseExtensions,
-
       Collaboration.configure({
-        document: provider.doc,
-        field: "content",
+        document: provider.doc, // Connects the editor to the server's data
+        field: "content", // Matches standard Hocuspocus configuration
       }),
-
       CollaborationCursor.configure({
-        provider,
+        provider: provider,
         user: {
           name: "Dev B",
           color: getRandomColor(),
         },
       }),
     ];
-  }, [provider, provider?.wsconnected]);
+  }, [provider, provider?.doc]); // Re-run only when the provider or document object is ready
 
   // 3️⃣ Create TipTap editor
   const editor = useEditor(

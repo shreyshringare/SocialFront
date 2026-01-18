@@ -14,7 +14,9 @@ const hocuspocusServer = new Server({
       fetch: async ({ documentName }) => {
         console.log(`DB FETCH: Looking for [${documentName}]`);
         try {
-          const doc = await Document.findOne({ name: documentName });
+          const doc = await Document.findOne({ name: documentName }).timeout(
+            5000
+          );
           if (doc) {
             console.log(`DB FETCH: Found data (${doc.data.length} bytes)`);
             return doc.data;
@@ -22,7 +24,7 @@ const hocuspocusServer = new Server({
           console.log(`DB FETCH: No existing data for this room.`);
           return null;
         } catch (err) {
-          console.error("DB FETCH ERROR:", err);
+          console.error("DB FETCH ERROR:", err.message);
           return null;
         }
       },

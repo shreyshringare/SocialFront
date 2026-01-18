@@ -123,11 +123,17 @@ const Editor = ({ documentId }) => {
     ];
   }, [provider, provider?.doc]); // Re-run only when the provider or document object is ready
 
-  // 3️⃣ Create TipTap editor
+  const editorKey = provider?.doc ? "ready" : "loading";
+
   const editor = useEditor(
     {
-      extensions,
+      // 2. The key forces TipTap to re-render safely
+      key: editorKey,
+      extensions: extensions,
+      // Add this to ensure it doesn't try to render content before the doc exists
+      content: "",
     },
+    // 3. Re-run whenever the extensions (which depend on the doc) change
     [extensions]
   );
 
@@ -331,7 +337,23 @@ const Editor = ({ documentId }) => {
         </button>
       </div>
 
-      <EditorContent editor={editor} />
+      {provider?.doc ? (
+        <EditorContent editor={editor} />
+      ) : (
+        <div
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            color: "#666",
+            background: "#f9f9f9",
+            borderRadius: "8px",
+            border: "1px dashed #ccc",
+          }}
+        >
+          <p>🔄 Connecting to secure database...</p>
+        </div>
+      )}
+
       <input
         type="file"
         id="fileInput"
@@ -341,6 +363,19 @@ const Editor = ({ documentId }) => {
       />
     </div>
   );
+};
+
+// This component ONLY runs when the database is 100% ready
+const ConnectedEditor = ({ extensions }) => {
+  const editor = useEditor(
+    {
+      extensions,
+      content: "",
+    },
+    [extensions]
+  );
+
+  return <EditorContent editor={editor} />;
 };
 
 export default Editor;

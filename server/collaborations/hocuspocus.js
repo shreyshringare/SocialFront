@@ -14,9 +14,7 @@ const hocuspocusServer = new Server({
       fetch: async ({ documentName }) => {
         console.log(`DB FETCH: Looking for [${documentName}]`);
         try {
-          const doc = await Document.findOne({ name: documentName }).timeout(
-            5000
-          );
+          const doc = await Document.findOne({ name: documentName }).exec();
           if (doc) {
             console.log(`DB FETCH: Found data (${doc.data.length} bytes)`);
             return doc.data;
@@ -28,6 +26,7 @@ const hocuspocusServer = new Server({
           return null;
         }
       },
+
 
       store: async ({ documentName, state }) => {
         console.log(`DB STORE: Attempting save for [${documentName}]`);

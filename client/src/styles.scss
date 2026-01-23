@@ -205,9 +205,12 @@ header {
 .docs-title-input {
   border: 1px solid transparent;
   font-size: 18px;
-  padding: 2px 5px;
+  padding: 2px 4px;
   border-radius: 4px;
   width: 250px;
+  font-family: "Google Sans", Arial, sans-serif;
+  color: #202124;
+  outline: none;
 }
 
 .docs-title-input:hover {

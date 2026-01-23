@@ -229,7 +229,8 @@ const Editor = ({ documentId }) => {
             <input
               type="text"
               className="docs-title-input"
-              defaultValue="Untitled document"
+              //defaultValue="Untitled document"
+              placeholder="Untitled document"
             />
           </div>
         </div>

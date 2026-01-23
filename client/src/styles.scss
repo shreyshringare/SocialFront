@@ -26,7 +26,8 @@ header {
   border: 1px solid #e2e8f0;
   min-height: 800px; /* Professional A4 feel */
   /* Day 9: Deeper shadow for premium look */
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   padding: 40px;
   border-radius: 8px;
@@ -176,4 +177,130 @@ header {
   padding: 2px 6px;
   border-radius: 4px 4px 4px 0;
   white-space: nowrap;
+}
+
+/* Layout & Background */
+.google-docs-app {
+  background-color: #f8f9fa; /* Gray workspace background */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Styling */
+.docs-header {
+  background: white;
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.docs-title-input {
+  border: 1px solid transparent;
+  font-size: 18px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  width: 250px;
+}
+
+.docs-title-input:hover {
+  border-color: #ccc;
+}
+
+.docs-fake-menu {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: #444;
+  margin-left: 5px;
+}
+
+.docs-share-button {
+  background-color: #c2e7ff; /* Google's light blue */
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Toolbar Styling */
+.toolbar-wrapper {
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  padding: 5px 0;
+}
+
+.google-toolbar {
+  background-color: #edf2fa; /* Light blue toolbar tint */
+  padding: 4px 12px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.google-toolbar button {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.google-toolbar button:hover {
+  background-color: #dee1e6;
+}
+.google-toolbar button.active {
+  background-color: #d3e3fd;
+  color: #041e49;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #c7c7c7;
+  margin: 0 5px;
+}
+
+/* The Page (The Canvas) */
+.docs-canvas {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.page-container {
+  background: white;
+  width: 816px; /* A4 Width */
+  min-height: 1056px;
+  padding: 96px; /* 1-inch margins */
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+  margin-bottom: 50px;
+}
+
+/* TipTap Content Area Styling */
+.ProseMirror {
+  outline: none;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #202124;
 }

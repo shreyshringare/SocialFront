@@ -11,6 +11,22 @@ import Image from "@tiptap/extension-image";
 import ImageResize from "tiptap-extension-resize-image";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
+import {
+  Bold,
+  Italic,
+  Strikethrough,
+  Undo,
+  Redo,
+  List,
+  Heading1,
+  Heading2,
+  Code,
+  Minus,
+  Image as ImageIcon,
+  Upload,
+  Share2,
+} from "lucide-react";
+
 const colors = [
   "#958DF1",
   "#F98181",
@@ -134,7 +150,7 @@ const Editor = ({ documentId }) => {
       content: "",
     },
     // 3. Re-run whenever the extensions (which depend on the doc) change
-    [extensions]
+    [extensions],
   );
 
   // 4️⃣ Loading state
@@ -197,162 +213,154 @@ const Editor = ({ documentId }) => {
   };
 
   return (
-    <div className="editor-container">
-      {/* --- DAY 5 TOOLBAR (Updated with more buttons) --- */}
-      <div className="toolbar">
-        {/* Basic Text Formatting */}
-        <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive("bold") ? "is-active" : ""}
-        >
-          Bold
-        </button>
+    <div className="google-docs-app">
+      {/* 1. THE TOP HEADER: Title and Share Button */}
+      <header className="docs-header">
+        <div className="header-left">
+          <div className="docs-logo">
+            {/* Official Google Docs Icon for similarity */}
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg"
+              alt="logo"
+              width="36"
+            />
+          </div>
+          <div className="title-section">
+            <input
+              type="text"
+              className="docs-title-input"
+              defaultValue="Untitled document"
+            />
+            <div className="docs-menu-bar">
+              <span>File</span>
+              <span>Edit</span>
+              <span>View</span>
+              <span>Insert</span>
+              <span>Format</span>
+              <span>Tools</span>
+            </div>
+          </div>
+        </div>
 
-        <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive("italic") ? "is-active" : ""}
-        >
-          Italic
-        </button>
+        <div className="header-right">
+          <div className="status-container">
+            <span
+              className={`status-dot ${connectionStatus === "connected" ? "online" : "offline"}`}
+            >
+              ●
+            </span>
+            <span className="status-text">
+              {connectionStatus === "connected"
+                ? "Saved to Drive"
+                : "Reconnecting..."}
+            </span>
+          </div>
+          <button className="docs-share-button" onClick={copyRoomLink}>
+            <Share2 size={18} /> Share
+          </button>
+        </div>
+      </header>
 
-        <button
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={editor.isActive("strike") ? "is-active" : ""}
-        >
-          Strike
-        </button>
+      {/* 2. THE TOOLBAR: Pill-shaped icon bar */}
+      <div className="toolbar-wrapper">
+        <div className="google-toolbar">
+          {/* History Group */}
+          <button
+            onClick={() => editor.chain().focus().undo().run()}
+            title="Undo"
+          >
+            <Undo size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().redo().run()}
+            title="Redo"
+          >
+            <Redo size={18} />
+          </button>
 
-        {/* Headings */}
-        <button
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 1 }) ? "is-active" : ""
-          }
-        >
-          H1
-        </button>
+          <div className="toolbar-divider" />
 
-        <button
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          className={
-            editor.isActive("heading", { level: 2 }) ? "is-active" : ""
-          }
-        >
-          H2
-        </button>
+          {/* Text Style Group */}
+          <button
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={editor.isActive("bold") ? "active" : ""}
+          >
+            <Bold size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={editor.isActive("italic") ? "active" : ""}
+          >
+            <Italic size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={editor.isActive("strike") ? "active" : ""}
+          >
+            <Strikethrough size={18} />
+          </button>
 
-        {/* Lists */}
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive("bulletList") ? "is-active" : ""}
-        >
-          Bullet List
-        </button>
+          <div className="toolbar-divider" />
 
-        {/* Code Block & Horizontal Rule */}
-        <button
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={editor.isActive("codeBlock") ? "is-active" : ""}
-        >
-          Code Block
-        </button>
+          {/* Heading/List Group */}
+          <button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+            className={editor.isActive("heading", { level: 1 }) ? "active" : ""}
+          >
+            H1
+          </button>
+          <button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+            className={editor.isActive("heading", { level: 2 }) ? "active" : ""}
+          >
+            H2
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={editor.isActive("bulletList") ? "active" : ""}
+          >
+            <List size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            className={editor.isActive("codeBlock") ? "active" : ""}
+          >
+            <Code size={18} />
+          </button>
 
-        <button
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        >
-          Divider
-        </button>
+          <div className="toolbar-divider" />
 
-        {/* Undo/Redo */}
-        <button
-          onClick={() => {
-            console.log("Undo clicked"); // Check your console to see if this triggers
-            editor.chain().focus().undo().run();
-          }}
-          // For Day 10, let's remove the faded-button class temporarily
-          // to see if the buttons actually work when clicked.
-          className="toolbar-button"
-        >
-          Undo
-        </button>
-
-        <button
-          onClick={() => {
-            console.log("Redo clicked");
-            editor.chain().focus().redo().run();
-          }}
-          className="toolbar-button"
-        >
-          Redo
-        </button>
-
-        {/* Option A: Insert from Web */}
-        <button
-          onClick={() => {
-            const url = window.prompt("Paste image URL from web:");
-            if (url) editor.chain().focus().setImage({ src: url }).run();
-          }}
-          className="toolbar-button"
-        >
-          Web Image
-        </button>
-
-        {/* Option B: Upload from System */}
-        <button
-          onClick={() => document.getElementById("fileInput").click()}
-          className="toolbar-button"
-        >
-          Upload Image
-        </button>
-
-        {/* Connection status */}
-        <span
-          style={{
-            marginLeft: "auto",
-            fontSize: "12px",
-            color: connectionStatus === "connected" ? "green" : "red",
-            fontWeight: "bold",
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-          }}
-        >
-          ● {connectionStatus === "connected" ? "Online" : "Offline"}
-        </span>
-
-        <button
-          onClick={copyRoomLink}
-          className="toolbar-button share-button"
-          style={{
-            marginLeft: "10px",
-            backgroundColor: "#6366f1",
-            color: "white",
-          }}
-        >
-          Copy Link
-        </button>
+          {/* Media Group */}
+          <button
+            onClick={() => {
+              const url = window.prompt("Paste image URL:");
+              if (url) editor.chain().focus().setImage({ src: url }).run();
+            }}
+          >
+            <ImageIcon size={18} />
+          </button>
+          <button onClick={() => document.getElementById("fileInput").click()}>
+            <Upload size={18} />
+          </button>
+        </div>
       </div>
 
-      {provider?.doc ? (
-        <EditorContent editor={editor} />
-      ) : (
-        <div
-          style={{
-            padding: "20px",
-            textAlign: "center",
-            color: "#666",
-            background: "#f9f9f9",
-            borderRadius: "8px",
-            border: "1px dashed #ccc",
-          }}
-        >
-          <p>🔄 Connecting to secure database...</p>
+      {/* 3. THE CANVAS: White paper on gray background */}
+      <main className="docs-canvas">
+        <div className="page-container">
+          {provider?.doc ? (
+            <EditorContent editor={editor} />
+          ) : (
+            <div className="loading-state">
+              <p>🔄 Connecting to secure database...</p>
+            </div>
+          )}
         </div>
-      )}
+      </main>
 
       <input
         type="file"
@@ -372,7 +380,7 @@ const ConnectedEditor = ({ extensions }) => {
       extensions,
       content: "",
     },
-    [extensions]
+    [extensions],
   );
 
   return <EditorContent editor={editor} />;

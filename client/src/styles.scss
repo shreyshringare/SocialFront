@@ -254,9 +254,11 @@ header {
 .google-toolbar button {
   background: transparent;
   border: none;
-  padding: 6px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 6px;
   cursor: pointer;
+  color: #444;
+  transition: background-color 0.2s;
   display: flex;
   align-items: center;
 }
@@ -267,6 +269,7 @@ header {
 .google-toolbar button.active {
   background-color: #d3e3fd;
   color: #041e49;
+  font-weight: bold;
 }
 
 .toolbar-divider {

@@ -220,7 +220,7 @@ const Editor = ({ documentId }) => {
           <div className="docs-logo">
             {/* Official Google Docs Icon for similarity */}
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg"
+              src="https://cdn.worldvectorlogo.com/logos/svg-2.svg"
               alt="logo"
               width="36"
             />
@@ -231,14 +231,6 @@ const Editor = ({ documentId }) => {
               className="docs-title-input"
               defaultValue="Untitled document"
             />
-            <div className="docs-menu-bar">
-              <span>File</span>
-              <span>Edit</span>
-              <span>View</span>
-              <span>Insert</span>
-              <span>Format</span>
-              <span>Tools</span>
-            </div>
           </div>
         </div>
 
@@ -356,7 +348,7 @@ const Editor = ({ documentId }) => {
             <EditorContent editor={editor} />
           ) : (
             <div className="loading-state">
-              <p>🔄 Connecting to secure database...</p>
+              <p>Connecting to secure database...</p>
             </div>
           )}
         </div>

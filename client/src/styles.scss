@@ -192,20 +192,17 @@ header {
 /* Header Styling */
 .docs-header {
   background: white;
-  padding: 8px 20px;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #ddd;
 
-  /* These lines solve the "shortness" */
-  width: 100% !important;
+  /* Unified Width Logic */
+  width: 100%;
+  max-width: 1000px; /* Adjust this number to your preference */
+  margin: 0 auto; /* Centers the header */
   box-sizing: border-box;
-  border-bottom: 1px solid #dadce0;
-
-  /* Keeps it visible while you scroll */
-  position: sticky;
-  top: 0;
-  z-index: 1000;
 }
 
 .header-left {
@@ -259,11 +256,12 @@ header {
   background-color: #f8f9fa;
   display: flex;
   justify-content: center;
-  padding: 8px 0;
+  padding: 10px 0;
+
+  /* Unified Width Logic */
   width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  max-width: 1000px;
+  margin: 0 auto; /* Centers the toolbar row */
 }
 
 .google-toolbar {
@@ -309,19 +307,25 @@ header {
 
 /* The Page (The Canvas) */
 .docs-canvas {
-  flex-grow: 1;
-  overflow-y: auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8f9fa;
   padding-top: 20px;
+
+  /* Unified Width Logic */
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto; /* Centers the canvas area */
 }
 
 .page-container {
   background: white;
-  width: 900px; /* Set this to your preferred "Paper" width */
+  width: 100%; /* It will now fill the 1000px of its parent */
+  max-width: 850px; /* Slightly narrower than header for a 'boxed' look */
   min-height: 1056px;
   padding: 80px 100px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 50px;
 }
 

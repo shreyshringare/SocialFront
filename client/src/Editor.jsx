@@ -11,6 +11,21 @@ import Image from "@tiptap/extension-image";
 import ImageResize from "tiptap-extension-resize-image";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
+import { FontFamily } from "@tiptap/extension-font-family";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { TextAlign } from "@tiptap/extension-text-align";
+
+import {
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  ListOrdered,
+  Outdent,
+  Indent,
+  Type,
+} from "lucide-react";
+
 import {
   Bold,
   Italic,
@@ -113,6 +128,11 @@ const Editor = ({ documentId }) => {
     const baseExtensions = [
       StarterKit.configure({ history: false }),
       ImageResize,
+      TextStyle,
+      FontFamily,
+      TextAlign.configure({
+        types: ["heading", "paragraph"], // Allows alignment on these blocks
+      }),
     ];
 
     // 1. SAFETY: Check if the provider OR its document is missing.
@@ -257,7 +277,7 @@ const Editor = ({ documentId }) => {
       {/* 2. THE TOOLBAR: Pill-shaped icon bar */}
       <div className="toolbar-wrapper">
         <div className="google-toolbar">
-          {/* History Group */}
+          {/* 1. Existing History Group */}
           <button
             onClick={() => editor.chain().focus().undo().run()}
             title="Undo"
@@ -270,10 +290,25 @@ const Editor = ({ documentId }) => {
           >
             <Redo size={18} />
           </button>
-
           <div className="toolbar-divider" />
 
-          {/* Text Style Group */}
+          {/* 2. NEW: Font Family Dropdown */}
+          <select
+            onChange={(e) =>
+              editor.chain().focus().setFontFamily(e.target.value).run()
+            }
+            className="font-select"
+            defaultValue="Arial"
+          >
+            <option value="Arial">Arial</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Verdana">Verdana</option>
+          </select>
+          <div className="toolbar-divider" />
+
+          {/* 3. Existing Text Style Group */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={editor.isActive("bold") ? "active" : ""}
@@ -292,10 +327,38 @@ const Editor = ({ documentId }) => {
           >
             <Strikethrough size={18} />
           </button>
-
           <div className="toolbar-divider" />
 
-          {/* Heading/List Group */}
+          {/* 4. NEW: Alignment Group (from your image_e3f238.png) */}
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            className={editor.isActive({ textAlign: "left" }) ? "active" : ""}
+          >
+            <AlignLeft size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            className={editor.isActive({ textAlign: "center" }) ? "active" : ""}
+          >
+            <AlignCenter size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            className={editor.isActive({ textAlign: "right" }) ? "active" : ""}
+          >
+            <AlignRight size={18} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+            className={
+              editor.isActive({ textAlign: "justify" }) ? "active" : ""
+            }
+          >
+            <AlignJustify size={18} />
+          </button>
+          <div className="toolbar-divider" />
+
+          {/* 5. Existing Heading & Bullet List Group */}
           <button
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 1 }).run()
@@ -318,16 +381,40 @@ const Editor = ({ documentId }) => {
           >
             <List size={18} />
           </button>
+
+          {/* 6. NEW: Ordered List & Indentation (from your image_e3f238.png) */}
+          <button
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={editor.isActive("orderedList") ? "active" : ""}
+          >
+            <ListOrdered size={18} />
+          </button>
+          <button
+            onClick={() =>
+              editor.chain().focus().liftListItem("listItem").run()
+            }
+            title="Outdent"
+          >
+            <Outdent size={18} />
+          </button>
+          <button
+            onClick={() =>
+              editor.chain().focus().sinkListItem("listItem").run()
+            }
+            title="Indent"
+          >
+            <Indent size={18} />
+          </button>
+
           <button
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={editor.isActive("codeBlock") ? "active" : ""}
           >
             <Code size={18} />
           </button>
-
           <div className="toolbar-divider" />
 
-          {/* Media Group */}
+          {/* 7. Existing Media Group */}
           <button
             onClick={() => {
               const url = window.prompt("Paste image URL:");

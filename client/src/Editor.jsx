@@ -63,6 +63,8 @@ const Editor = ({ documentId }) => {
   const [provider, setProvider] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState("offline");
 
+  const [loading, setLoading] = useState(true);
+
   // 1️⃣ Create Yjs document + Hocuspocus provider
   useEffect(() => {
     const ydoc = new Y.Doc();
@@ -74,23 +76,33 @@ const Editor = ({ documentId }) => {
       connect: true,
     });
 
-    // --- NEW: Status Listener Logic ---
-    // This listens for the '101' handshake you saw in the network tab
+    // Existing Status Listener
     wsProvider.on("status", ({ status }) => {
       console.log("WebSocket Status Update:", status);
-      // This will update your 'connectionStatus' state to 'connected'
       setConnectionStatus(status);
+
+      if (status === "connected") {
+        console.log("Forcing loading to false via status");
+        setLoading(false);
+      }
     });
+
+    // --- ADD THIS SECTION HERE ---
+    wsProvider.on("synced", () => {
+      console.log("Sync complete! Data loaded from MongoDB.");
+      setLoading(false); // This is the line that clears your loading screen
+    });
+    // -----------------------------
 
     setProvider(wsProvider);
 
     return () => {
       wsProvider.off("status");
+      wsProvider.off("synced"); // Clean up the listener
       wsProvider.destroy();
       ydoc.destroy();
     };
   }, [documentId]);
-
   // 2️⃣ Build extensions (StarterKit ALWAYS present)
   // const extensions = useMemo(() => {
   //   const baseExtensions = [
@@ -163,15 +175,23 @@ const Editor = ({ documentId }) => {
 
   const editor = useEditor(
     {
-      // 2. The key forces TipTap to re-render safely
-      key: editorKey,
-      extensions: extensions,
-      // Add this to ensure it doesn't try to render content before the doc exists
-      content: "",
+      extensions: [
+        StarterKit.configure({ history: false }),
+        // --- THE SAFETY GATE ---
+        // Only add Collaboration if the provider actually exists
+        ...(provider
+          ? [
+              Collaboration.configure({
+                document: provider.document,
+              }),
+            ]
+          : []),
+      ],
+      // This prevents the "getXmlFragment" crash by waiting for the provider
+      immediatelyRender: false,
     },
-    // 3. Re-run whenever the extensions (which depend on the doc) change
-    [extensions],
-  );
+    [provider],
+  ); // Add provider to the dependency array so it re-runs once connected
 
   // 4️⃣ Loading state
   if (!editor || !provider) {
@@ -431,15 +451,29 @@ const Editor = ({ documentId }) => {
 
       {/* 3. THE CANVAS: White paper on gray background */}
       <main className="docs-canvas">
-        <div className="page-container">
-          {provider?.doc ? (
+        {/* Switch from checking provider properties to checking your local state */}
+        {!loading && editor ? (
+          <div className="page-container">
             <EditorContent editor={editor} />
-          ) : (
-            <div className="loading-state">
-              <p>Connecting to secure database...</p>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div
+            className="loading-state"
+            style={{ textAlign: "center", marginTop: "50px" }}
+          >
+            <p>Establishing secure sync...</p>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                marginTop: "10px",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+            >
+              Click to Refresh
+            </button>
+          </div>
+        )}
       </main>
 
       <input

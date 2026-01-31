@@ -1,6 +1,25 @@
 import { Server } from "@hocuspocus/server";
-import { Database } from "@hocuspocus/extension-database"; // Ensure this is installed
-import Document from "../models/Document.js"; // Import the model we created
+import { Database } from "@hocuspocus/extension-database";
+import Document from "../models/Document.js";
+import mongoose from "mongoose"; //
+import dotenv from "dotenv"; //
+
+// 1. Load environment variables from .env
+dotenv.config();
+
+// 2. Connect to MongoDB using the URI from your .env
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error("ERROR: MONGO_URI is missing from your .env file!");
+} else {
+  mongoose
+    .connect(MONGO_URI)
+    .then(() =>
+      console.log("DATABASE STATUS: Successfully connected to MongoDB"),
+    )
+    .catch((err) => console.error("DATABASE STATUS: Connection failed", err));
+}
 
 const hocuspocusServer = new Server({
   port: 1234,
@@ -8,33 +27,39 @@ const hocuspocusServer = new Server({
   // --- START OF DAY 11 PERSISTENCE EXTENSION ---
   extensions: [
     new Database({
-      // Save every 500ms after typing stops
       debounce: 500,
 
       fetch: async ({ documentName }) => {
-        console.log(`DB FETCH: Looking for [${documentName}]`);
+        console.log(`🔎 DB FETCH: Searching for [${documentName}]`);
         try {
-          const doc = await Document.findOne({ name: documentName }).exec();
+          const doc = await Promise.race([
+            Document.findOne({ name: documentName }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Timeout")), 3000),
+            ),
+          ]);
+
           if (doc) {
-            console.log(`DB FETCH: Found data (${doc.data.length} bytes)`);
+            console.log("✅ DB FETCH: Document found.");
             return doc.data;
           }
-          console.log(`DB FETCH: No existing data for this room.`);
+          console.log("DB FETCH: New room, starting fresh.");
           return null;
-        } catch (err) {
-          console.error("DB FETCH ERROR:", err.message);
-          return null;
+        } catch (error) {
+          console.error(
+            "DB FETCH ERROR: Loading blank editor to prevent hang.",
+          );
+          return null; // Allows editor to open even if DB fails
         }
       },
-
 
       store: async ({ documentName, state }) => {
         console.log(`DB STORE: Attempting save for [${documentName}]`);
         try {
-          const result = await Document.findOneAndUpdate(
+          await Document.findOneAndUpdate(
             { name: documentName },
             { data: state, updatedAt: new Date() },
-            { upsert: true, new: true }
+            { upsert: true, new: true },
           );
           console.log(`DB STORE: Saved successfully to MongoDB.`);
         } catch (err) {
@@ -53,12 +78,9 @@ const hocuspocusServer = new Server({
   async onAuthenticate(data) {
     try {
       console.log(`Authenticating connection for room: ${data.documentName}`);
-
       if (!data.documentName) {
-        console.error("No document name provided!");
         throw new Error("No document name");
       }
-
       return {
         user: { id: 1, name: "Dev B" },
       };

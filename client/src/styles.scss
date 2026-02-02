@@ -187,6 +187,7 @@ header {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  overflow: hidden; /* Prevent the entire page from scrolling */
 }
 
 /* Header Styling */
@@ -196,12 +197,9 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ddd;
-
-  /* Unified Width Logic */
   width: 100%;
-  max-width: 1000px; /* Adjust this number to your preference */
-  margin: 0 auto; /* Centers the header */
+  max-width: 1000px; /* Matching your preference */
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -253,15 +251,14 @@ header {
 
 /* Toolbar Styling */
 .toolbar-wrapper {
-  background-color: #f8f9fa;
+  background-color: #f8f9fa; /* Google's light grey toolbar look */
+  border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: center;
-  padding: 10px 0;
-
-  /* Unified Width Logic */
+  padding: 5px 0;
   width: 100%;
   max-width: 1000px;
-  margin: 0 auto; /* Centers the toolbar row */
+  margin: 0 auto;
 }
 
 .google-toolbar {
@@ -307,21 +304,17 @@ header {
 
 /* The Page (The Canvas) */
 .docs-canvas {
+  flex: 1;
+  overflow-y: auto; /* Only the editor area scrolls now */
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f8f9fa;
-  padding-top: 20px;
-
-  /* Unified Width Logic */
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto; /* Centers the canvas area */
 }
 
 .page-container {
   background: white;
-  width: 100%; /* It will now fill the 1000px of its parent */
+  width: 816px; /* It will now fill the 1000px of its parent */
   max-width: 850px; /* Slightly narrower than header for a 'boxed' look */
   min-height: 1056px;
   padding: 80px 100px;
@@ -364,4 +357,18 @@ header {
 
 .font-select:hover {
   background-color: #dee1e6;
+}
+
+/* Target the editor content area */
+.ProseMirror {
+  p {
+    margin: 0 !important; /* Removes the 2-line gap effect */
+    padding: 0 !important;
+    line-height: 1.5; /* Optional: gives a clean, readable line spacing */
+  }
+
+  /* Ensure there is a small space only if you actually want one */
+  p + p {
+    margin-top: 0 !important;
+  }
 }

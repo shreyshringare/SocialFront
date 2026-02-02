@@ -52,6 +52,8 @@ const colors = [
   "#B9F18D",
 ];
 
+import { Extension } from "@tiptap/core";
+
 const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
 const Editor = ({ documentId }) => {
@@ -176,9 +178,21 @@ const Editor = ({ documentId }) => {
   const editor = useEditor(
     {
       extensions: [
-        StarterKit.configure({ history: false }),
+        StarterKit.configure({
+          history: false,
+          // We disable the default horizontal rule or others if needed
+        }),
+        // --- NEW: Custom Enter Key Behavior ---
+        Extension.create({
+          name: "customEnter",
+          addKeyboardShortcuts() {
+            return {
+              // This makes Enter move to the immediate next line
+              Enter: () => this.editor.commands.setHardBreak(),
+            };
+          },
+        }),
         // --- THE SAFETY GATE ---
-        // Only add Collaboration if the provider actually exists
         ...(provider
           ? [
               Collaboration.configure({
@@ -187,11 +201,10 @@ const Editor = ({ documentId }) => {
             ]
           : []),
       ],
-      // This prevents the "getXmlFragment" crash by waiting for the provider
       immediatelyRender: false,
     },
     [provider],
-  ); // Add provider to the dependency array so it re-runs once connected
+  );
 
   // 4️⃣ Loading state
   if (!editor || !provider) {

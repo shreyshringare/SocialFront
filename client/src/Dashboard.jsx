@@ -2,39 +2,63 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./firebase/config";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { Plus, FileText, LogOut } from "lucide-react"; // Icons for the UI
+import { Plus, FileText, LogOut } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-  const [documents, setDocuments] = useState([]); // This will hold your file list
+  const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
 
-  // 1. Check if user is logged in
+  // 1. Fetch real documents from MongoDB on load
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        // For now, we show a dummy document to test the UI
-        setDocuments([
-          {
-            id: "test-doc-123",
-            title: "My First Document",
-            updatedAt: new Date().toLocaleDateString(),
-          },
-        ]);
+        try {
+          // We call your Express server on Port 5000
+          const response = await fetch(
+            `http://localhost:3000/api/documents/${currentUser.uid}`,
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setDocuments(data);
+          }
+        } catch (err) {
+          console.error("Failed to fetch documents:", err);
+        }
       } else {
-        navigate("/"); // If not logged in, kick them back to Login
+        navigate("/");
       }
     });
     return () => unsubscribe();
   }, [navigate]);
 
-  // 2. Function to create a NEW document
-  const createNewDocument = () => {
+  // 2. Register the new document in MongoDB before navigating
+  const createNewDocument = async () => {
     const newId = uuidv4();
-    // In Phase 3, we will save this ID to MongoDB
-    navigate(`/document/${newId}`);
+    const userId = auth.currentUser?.uid;
+
+    if (!userId) return;
+
+    try {
+      // Create the record in your 'document_metadata' collection
+      await fetch("http://localhost:3000/api/documents/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          documentId: newId,
+          ownerId: userId,
+          title: "Untitled document",
+        }),
+      });
+
+      // Navigate to the editor with the new ID
+      navigate(`/document/${newId}`);
+    } catch (error) {
+      console.error("Creation failed:", error);
+      alert("Check if your server is running on port 5000");
+    }
   };
 
   const handleLogout = () => {
@@ -48,7 +72,6 @@ const Dashboard = () => {
       className="dashboard-container"
       style={{ background: "#f8f9fa", minHeight: "100vh" }}
     >
-      {/* Dashboard Header */}
       <header
         style={{
           background: "white",
@@ -85,7 +108,6 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* "Start New Document" Section */}
       <div style={{ background: "#f1f3f4", padding: "40px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
           <p style={{ marginBottom: "15px", color: "#202124" }}>
@@ -122,7 +144,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Documents List */}
       <div
         style={{ maxWidth: "800px", margin: "40px auto", padding: "0 20px" }}
       >
@@ -138,8 +159,8 @@ const Dashboard = () => {
         >
           {documents.map((doc) => (
             <div
-              key={doc.id}
-              onClick={() => navigate(`/document/${doc.id}`)}
+              key={doc.documentId}
+              onClick={() => navigate(`/document/${doc.documentId}`)}
               style={{
                 background: "white",
                 border: "1px solid #dadce0",
@@ -179,11 +200,18 @@ const Dashboard = () => {
                     marginTop: "5px",
                   }}
                 >
-                  Opened {doc.updatedAt}
+                  {doc.createdAt
+                    ? new Date(doc.createdAt).toLocaleDateString()
+                    : "Recent"}
                 </p>
               </div>
             </div>
           ))}
+          {documents.length === 0 && (
+            <p style={{ color: "#70757a" }}>
+              No documents yet. Click '+' to start!
+            </p>
+          )}
         </div>
       </div>
     </div>

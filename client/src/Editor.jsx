@@ -54,13 +54,35 @@ const colors = [
 
 import { Extension } from "@tiptap/core";
 
+import { useParams } from "react-router-dom";
+
 const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
-const Editor = ({ documentId }) => {
-  // Hard safety guard
-  if (!documentId) {
-    return <div className="editor-container">Missing documentId</div>;
-  }
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * The Editor component is the core of the application. It provides a
+ * text editing interface for users to collaborate on documents.
+ *
+ * It uses the Tiptap library to render the editor and handle user
+ * input. It also uses the Hocuspocus library to establish a secure
+ * connection between clients and the server.
+ *
+ * The component takes a single prop, `documentId`, which is used to
+ * identify the document to be edited. If no `documentId` is provided,
+ * the component will render a message indicating that it is missing.
+ *
+ * The component also renders a loading state while the connection to
+ * the server is being established. If the connection fails to
+ * establish, the component will render an error message and provide
+ * a button to refresh the page.
+ */
+/*******  0076e54f-0809-4635-956d-4cb1f4211cfa  *******/
+const Editor = () => {
+  // This hook pulls the ID directly from the URL path (/document/:documentId)
+  const { documentId } = useParams();
+  //if (!documentId) {
+  //return <div className="editor-container">Missing documentId</div>;
+  //}
 
   const [provider, setProvider] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState("offline");

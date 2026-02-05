@@ -8,18 +8,10 @@ import {
 } from "react-router-dom";
 import Login from "./Login";
 import Editor from "./Editor";
+import Dashboard from "./Dashboard";
 
 // 2. This is a temporary placeholder for your Dashboard
 // We will build the real Dashboard.jsx in Phase 2
-const DashboardPlaceholder = () => (
-  <div style={{ padding: "50px", textAlign: "center" }}>
-    <h2>Welcome to your Dashboard!</h2>
-    <p>You have successfully logged in.</p>
-    <button onClick={() => (window.location.href = "/document/new-test-doc")}>
-      Open a Test Document
-    </button>
-  </div>
-);
 
 function App() {
   return (
@@ -29,7 +21,7 @@ function App() {
         <Route path="/" element={<Login />} />
 
         {/* 4. After login, users land here to see their files */}
-        <Route path="/dashboard" element={<DashboardPlaceholder />} />
+        <Route path="/dashboard" element={<Dashboard />} />
 
         {/* 5. This opens your existing Editor based on the ID in the URL */}
         <Route path="/document/:documentId" element={<Editor />} />

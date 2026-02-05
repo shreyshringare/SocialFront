@@ -1,45 +1,43 @@
+import React from "react";
+// 1. We import these tools to manage different "pages"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./Login";
 import Editor from "./Editor";
-import "./styles.scss";
-import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+
+// 2. This is a temporary placeholder for your Dashboard
+// We will build the real Dashboard.jsx in Phase 2
+const DashboardPlaceholder = () => (
+  <div style={{ padding: "50px", textAlign: "center" }}>
+    <h2>Welcome to your Dashboard!</h2>
+    <p>You have successfully logged in.</p>
+    <button onClick={() => (window.location.href = "/document/new-test-doc")}>
+      Open a Test Document
+    </button>
+  </div>
+);
 
 function App() {
-  const [roomId, setRoomId] = useState("");
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const room = params.get("room");
-    if (room) {
-      setRoomId(room);
-    } else {
-      const newRoom = uuidv4();
-      setRoomId(newRoom);
-      window.history.replaceState(null, "", `?room=${newRoom}`);
-    }
-  }, []);
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Link Copied! Send it to your partner.");
-  };
-
-  if (!roomId) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="app">
-      <header>
-        <h3>Document: {roomId.slice(0, 8)}...</h3>
-        <button
-          onClick={copyLink}
-          style={{ background: "black", color: "white" }}
-        >
-          Share Link
-        </button>
-      </header>
-      {/* We pass the Room ID to the editor here */}
-      <Editor documentId={roomId} />
-    </div>
+    <Router>
+      <Routes>
+        {/* 3. The first screen people see is now the Login */}
+        <Route path="/" element={<Login />} />
+
+        {/* 4. After login, users land here to see their files */}
+        <Route path="/dashboard" element={<DashboardPlaceholder />} />
+
+        {/* 5. This opens your existing Editor based on the ID in the URL */}
+        <Route path="/document/:documentId" element={<Editor />} />
+
+        {/* 6. Catch-all: If a URL is wrong, go back to Login */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 

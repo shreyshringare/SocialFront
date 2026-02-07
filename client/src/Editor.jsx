@@ -89,7 +89,19 @@ const Editor = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const [title, setTitle] = useState("Untitled document");
+  const [title, setTitle] = useState("");
+
+  const updateTitle = async (newTitle) => {
+    try {
+      await fetch(`http://localhost:3000/api/documents/update-title`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId, title: newTitle }),
+      });
+    } catch (err) {
+      console.error("Save failed", err);
+    }
+  };
 
   // 1️⃣ Create Yjs document + Hocuspocus provider
   useEffect(() => {
@@ -217,32 +229,6 @@ const Editor = () => {
     ];
   }, [provider, provider?.doc]); // Re-run only when the provider or document object is ready
 
-  const updateTitle = async (newTitle) => {
-    console.log("updateTitle function triggered with:", newTitle); // Debug 1
-
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/documents/update-title`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            documentId: documentId,
-            title: newTitle,
-          }),
-        },
-      );
-
-      if (response.ok) {
-        console.log("Title successfully saved to MongoDB"); // Debug 2
-      } else {
-        console.error("Server responded with an error:", response.status); // Debug 3
-      }
-    } catch (err) {
-      console.error("Network or Fetch error:", err); // Debug 4
-    }
-  };
-
   const editorKey = provider?.doc ? "ready" : "loading";
 
   const editor = useEditor(
@@ -352,8 +338,18 @@ const Editor = () => {
             <input
               type="text"
               className="docs-title-input"
-              //defaultValue="Untitled document"
               placeholder="Untitled document"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              // Trigger save when you click away
+              onBlur={(e) => updateTitle(e.target.value)}
+              // Trigger save when you press Enter
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  updateTitle(e.target.value);
+                  e.target.blur(); // This removes the cursor from the box
+                }
+              }}
             />
           </div>
         </div>
@@ -559,14 +555,22 @@ const Editor = () => {
         )}
       </main>
 
-      <input
+      {/* <input
         type="text"
         className="docs-title-input"
         placeholder="Untitled document"
-        value={title} // Ties the input to our state
-        onChange={(e) => setTitle(e.target.value)} // Updates UI while typing
-        onBlur={(e) => updateTitle(e.target.value)} // Saves to MongoDB when you click away
-      />
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        // Trigger save when you click away
+        onBlur={(e) => updateTitle(e.target.value)}
+        // Trigger save when you press Enter
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            updateTitle(e.target.value);
+            e.target.blur(); // This removes the cursor from the box
+          }
+        }}
+      /> */}
     </div>
   );
 };

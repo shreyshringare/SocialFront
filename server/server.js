@@ -3,64 +3,17 @@ dotenv.config();
 
 import http from "http";
 import express from "express";
+import cors from "cors";
 import connectMongo from "./persistence/mongo.js";
 import hocuspocusServer from "./collaborations/hocuspocus.js";
 
-import cors from "cors"; // Add this with your other imports
-// ...
-
 const app = express();
-app.use(cors()); // Add this right after 'const app = express()'
 
-// 1. ADD THIS LINE BELOW 'const app = express()'
-// This allows your server to read the data we send from the Dashboard
+// ---------- MIDDLEWARE ----------
+app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-
-// ... (Your existing errorCatcher and requestLogger)
-
-// ---------- NEW PHASE 3 ROUTES ----------
-
-// Change the POST route
-app.post("/api/documents/create", async (req, res) => {
-  const { documentId, ownerId, title } = req.body;
-  try {
-    const client = await connectMongo(); // Get the client
-    const db = client.db(); // Then get the db
-    await db.collection("document_metadata").insertOne({
-      documentId,
-      ownerId,
-      title: title || "Untitled document",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    res.status(201).json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server Error" });
-  }
-});
-
-// Change the GET route
-app.get("/api/documents/:userId", async (req, res) => {
-  try {
-    const client = await connectMongo();
-    const db = client.db();
-    const userDocs = await db
-      .collection("document_metadata")
-      .find({ ownerId: req.params.userId })
-      .toArray();
-    res.json(userDocs);
-  } catch (error) {
-    res.status(500).json({ error: "Server Error" });
-  }
-});
-// ---------- MIDDLEWARE ----------
-const errorCatcher = (err, req, res, next) => {
-  console.error(err);
-  res.status(500).send("Something Broke");
-};
+const PORT = process.env.PORT || 3000;
 
 const requestLogger = (req, res, next) => {
   const start = Date.now();
@@ -71,43 +24,101 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
-// ---------- ROUTES ----------
-app.get("/", (req, res) => {
-  res.send("root");
+// ---------- PHASE 3: DOCUMENT MANAGEMENT ROUTES ----------
+
+// 1. CREATE Route - Updated to use the new connection logic
+app.post("/api/documents/create", async (req, res) => {
+  const { documentId, ownerId, title } = req.body;
+  try {
+    const db = await connectMongo();
+    await db.collection("document_metadata").insertOne({
+      documentId,
+      ownerId,
+      title: title || "Untitled document",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    res.status(201).json({ success: true });
+  } catch (error) {
+    console.error("CREATE ERROR:", error);
+    res.status(500).json({ error: "Server Error" });
+  }
 });
 
-app.get("/health", requestLogger, (req, res) => {
-  res.send("OK");
+// 2. FETCH ALL Route - Updated to remove .db()
+app.get("/api/documents/:userId", async (req, res) => {
+  try {
+    const db = await connectMongo();
+    const userDocs = await db
+      .collection("document_metadata")
+      .find({ ownerId: req.params.userId })
+      .toArray();
+
+    res.json(userDocs);
+  } catch (error) {
+    console.error("FETCH LIST ERROR:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
-app.get("/status", requestLogger, (req, res) => {
-  res.send("Server Running");
+// 3. FETCH ONE Route - Updated to remove .db()
+app.get("/api/documents/metadata/:documentId", async (req, res) => {
+  try {
+    const db = await connectMongo();
+    const doc = await db.collection("document_metadata").findOne({
+      documentId: req.params.documentId,
+    });
+    res.json(doc || { title: "Untitled document" });
+  } catch (error) {
+    console.error("FETCH METADATA ERROR:", error);
+    res.status(500).json({ error: "Failed to fetch metadata" });
+  }
 });
 
-app.get("/crash", (req, res) => {
-  throw new Error("Crashhhhh");
+// 4. UPDATE Route - Updated to remove .db()
+app.patch("/api/documents/update-title", async (req, res) => {
+  const { documentId, title } = req.body;
+  try {
+    const db = await connectMongo();
+    await db
+      .collection("document_metadata")
+      .updateOne(
+        { documentId: documentId },
+        { $set: { title: title, updatedAt: new Date() } },
+      );
+    res.json({ success: true });
+  } catch (error) {
+    console.error("UPDATE TITLE ERROR:", error);
+    res.status(500).json({ error: "Failed to update title" });
+  }
 });
+
+// ---------- GENERAL ROUTES ----------
+app.get("/", (req, res) => res.send("root"));
+app.get("/health", requestLogger, (req, res) => res.send("OK"));
+app.get("/status", requestLogger, (req, res) => res.send("Server Running"));
 
 // ---------- ERROR HANDLER ----------
-app.use(errorCatcher);
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send("Something Broke");
+});
 
 // ---------- START SERVERS ----------
 const startServer = async () => {
   try {
     await connectMongo();
 
-    // Start Express (API server)
     const server = http.createServer(app);
     server.listen(PORT, () => {
-      console.log(`Express running on http://localhost:${PORT}`);
+      console.log(`🚀 Express running on http://localhost:${PORT}`);
     });
 
-    // Start Hocuspocus (Collaboration server)
     hocuspocusServer.listen(1234).then(() => {
       console.log("Hocuspocus is officially listening on port 1234");
     });
   } catch (err) {
-    console.error("Server failed.", err);
+    console.error("Server failed to start:", err);
     process.exit(1);
   }
 };

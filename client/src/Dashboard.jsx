@@ -15,17 +15,18 @@ const Dashboard = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+
+        // FETCH real files using the User ID
         try {
-          // We call your Express server on Port 5000
           const response = await fetch(
             `http://localhost:3000/api/documents/${currentUser.uid}`,
           );
           if (response.ok) {
             const data = await response.json();
-            setDocuments(data);
+            setDocuments(data); // This fills your "Recent Documents" section
           }
         } catch (err) {
-          console.error("Failed to fetch documents:", err);
+          console.error("Dashboard Fetch Error:", err);
         }
       } else {
         navigate("/");
@@ -37,27 +38,29 @@ const Dashboard = () => {
   // 2. Register the new document in MongoDB before navigating
   const createNewDocument = async () => {
     const newId = uuidv4();
-    const userId = auth.currentUser?.uid;
-
-    if (!userId) return;
+    const userId = auth.currentUser?.uid; // Should be 'OjX21TsDXK...'
 
     try {
-      // Create the record in your 'document_metadata' collection
-      await fetch("http://localhost:3000/api/documents/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          documentId: newId,
-          ownerId: userId,
-          title: "Untitled document",
-        }),
-      });
+      // We must call Port 3000 to reach your Express server
+      const response = await fetch(
+        "http://localhost:3000/api/documents/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            documentId: newId,
+            ownerId: userId,
+            title: "Untitled document",
+          }),
+        },
+      );
 
-      // Navigate to the editor with the new ID
-      navigate(`/document/${newId}`);
-    } catch (error) {
-      console.error("Creation failed:", error);
-      alert("Check if your server is running on port 5000");
+      if (response.ok) {
+        console.log("Metadata created successfully!");
+        navigate(`/document/${newId}`);
+      }
+    } catch (err) {
+      console.error("Failed to create metadata record:", err);
     }
   };
 

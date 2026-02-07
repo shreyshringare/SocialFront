@@ -89,6 +89,8 @@ const Editor = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [title, setTitle] = useState("Untitled document");
+
   // 1️⃣ Create Yjs document + Hocuspocus provider
   useEffect(() => {
     const ydoc = new Y.Doc();
@@ -126,6 +128,26 @@ const Editor = () => {
       wsProvider.destroy();
       ydoc.destroy();
     };
+  }, [documentId]);
+
+  // This is the new "pipe" specifically for the Title
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      if (!documentId) return;
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/documents/metadata/${documentId}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          // If the DB has a title, set it; otherwise keep "Untitled document"
+          setTitle(data.title || "Untitled document");
+        }
+      } catch (err) {
+        console.error("Error fetching title:", err);
+      }
+    };
+    fetchMetadata();
   }, [documentId]);
   // 2️⃣ Build extensions (StarterKit ALWAYS present)
   // const extensions = useMemo(() => {
@@ -194,6 +216,32 @@ const Editor = () => {
       }),
     ];
   }, [provider, provider?.doc]); // Re-run only when the provider or document object is ready
+
+  const updateTitle = async (newTitle) => {
+    console.log("updateTitle function triggered with:", newTitle); // Debug 1
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/documents/update-title`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            documentId: documentId,
+            title: newTitle,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        console.log("Title successfully saved to MongoDB"); // Debug 2
+      } else {
+        console.error("Server responded with an error:", response.status); // Debug 3
+      }
+    } catch (err) {
+      console.error("Network or Fetch error:", err); // Debug 4
+    }
+  };
 
   const editorKey = provider?.doc ? "ready" : "loading";
 
@@ -512,11 +560,12 @@ const Editor = () => {
       </main>
 
       <input
-        type="file"
-        id="fileInput"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleFileUpload}
+        type="text"
+        className="docs-title-input"
+        placeholder="Untitled document"
+        value={title} // Ties the input to our state
+        onChange={(e) => setTitle(e.target.value)} // Updates UI while typing
+        onBlur={(e) => updateTitle(e.target.value)} // Saves to MongoDB when you click away
       />
     </div>
   );

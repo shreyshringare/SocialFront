@@ -93,6 +93,34 @@ app.patch("/api/documents/update-title", async (req, res) => {
   }
 });
 
+// DELETE Route: Removes document from both metadata and raw data buckets
+app.delete("/api/documents/:documentId", async (req, res) => {
+  const { documentId } = req.params;
+  try {
+    const db = await connectMongo();
+
+    // 1. Delete the dashboard entry
+    const deleteMetadata = await db
+      .collection("document_metadata")
+      .deleteOne({ documentId });
+
+    // 2. Delete the actual text data (Hocuspocus/Yjs bucket)
+    const deleteData = await db
+      .collection("documents")
+      .deleteOne({ name: documentId });
+
+    if (deleteMetadata.deletedCount > 0) {
+      console.log(`Document ${documentId} deleted successfully.`);
+      res.json({ success: true, message: "Deleted from all databases" });
+    } else {
+      res.status(404).json({ error: "Document not found" });
+    }
+  } catch (error) {
+    console.error("DELETE ERROR:", error);
+    res.status(500).json({ error: "Failed to delete document" });
+  }
+});
+
 // ---------- GENERAL ROUTES ----------
 app.get("/", (req, res) => res.send("root"));
 app.get("/health", requestLogger, (req, res) => res.send("OK"));

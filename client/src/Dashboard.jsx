@@ -64,6 +64,32 @@ const Dashboard = () => {
     }
   };
 
+  const deleteDocument = async (e, documentId) => {
+    // CRITICAL: Stops the browser from opening the file while you try to delete it
+    e.stopPropagation();
+
+    if (!window.confirm("Are you sure? This deletes the file from everywhere."))
+      return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/documents/${documentId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (response.ok) {
+        // Instantly remove the card from the UI
+        setDocuments((prev) =>
+          prev.filter((doc) => doc.documentId !== documentId),
+        );
+      }
+    } catch (err) {
+      console.error("UI Delete Error:", err);
+    }
+  };
+
   const handleLogout = () => {
     signOut(auth);
   };
@@ -169,8 +195,39 @@ const Dashboard = () => {
                 border: "1px solid #dadce0",
                 borderRadius: "4px",
                 cursor: "pointer",
+                position: "relative", // Needed for the button positioning
               }}
             >
+              {/* THE DELETE BUTTON (THE CROSS SYMBOL) */}
+              <button
+                onClick={(e) => deleteDocument(e, doc.documentId)}
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  right: "8px",
+                  background: "#f1f3f4",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "24px",
+                  height: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  color: "#5f6368",
+                  zIndex: "10",
+                  fontWeight: "bold",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#e8eaed")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#f1f3f4")
+                }
+              >
+                ×
+              </button>
+
               <div
                 style={{
                   height: "140px",

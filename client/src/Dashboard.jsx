@@ -103,36 +103,73 @@ const Dashboard = () => {
     >
       <header
         style={{
-          background: "white",
-          padding: "10px 40px",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "space-between", // Forces logo to left and user info to right
           alignItems: "center",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          padding: "8px 20px",
+          background: "white",
+          borderBottom: "1px solid #dadce0",
+          width: "100%", // Ensures it spans the full browser width
+          boxSizing: "border-box", // Prevents padding from causing overflow
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        {/* --- LEFT SIDE: LOGO AND NAME --- */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <img
             src="https://cdn.worldvectorlogo.com/logos/svg-2.svg"
-            width="30"
-            alt="logo"
+            alt="Docs Logo"
+            style={{ width: "35px", height: "35px", cursor: "pointer" }}
+            onClick={() => navigate("/dashboard")}
           />
-          <h2 style={{ fontSize: "1.2rem", color: "#5f6368" }}>Docs</h2>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <span style={{ fontSize: "0.9rem", color: "#5f6368" }}>
-            {user.email}
+          <span
+            style={{
+              fontSize: "22px",
+              color: "#5f6368",
+              fontWeight: "400",
+              fontFamily: "Product Sans, Arial, sans-serif",
+            }}
+          >
+            Docs
           </span>
+        </div>
+
+        {/* --- RIGHT SIDE: EMAIL AND LOGOUT --- */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column", // Stacks email directly above the button
+            alignItems: "flex-end", // Aligns both text and button to the right edge
+            gap: "4px",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "13px",
+              color: "#5f6368",
+              fontWeight: "500",
+              marginRight: "4px", // Small tweak for alignment
+            }}
+          >
+            {user?.email} {/* Dynamic email from your auth state */}
+          </span>
+
           <button
             onClick={handleLogout}
             style={{
+              padding: "6px 20px",
+              background: "#1a73e8",
+              color: "white",
               border: "none",
-              background: "none",
+              borderRadius: "4px",
               cursor: "pointer",
-              color: "#5f6368",
+              fontSize: "14px",
+              fontWeight: "500",
+              transition: "background 0.2s",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#1765cc")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#1a73e8")}
           >
-            <LogOut size={20} />
+            Logout
           </button>
         </div>
       </header>
